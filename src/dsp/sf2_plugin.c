@@ -389,6 +389,28 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
     } else if (strcmp(key, "bank_count") == 0) {
         return snprintf(buf, buf_len, "%d", inst->soundfont_count);
     }
+    /* UI hierarchy for shadow parameter editor */
+    else if (strcmp(key, "ui_hierarchy") == 0) {
+        const char *hierarchy = "{"
+            "\"modes\":null,"
+            "\"levels\":{"
+                "\"root\":{"
+                    "\"list_param\":\"preset\","
+                    "\"count_param\":\"preset_count\","
+                    "\"name_param\":\"preset_name\","
+                    "\"children\":null,"
+                    "\"knobs\":[],"
+                    "\"params\":[]"
+                "}"
+            "}"
+        "}";
+        int len = strlen(hierarchy);
+        if (len < buf_len) {
+            strcpy(buf, hierarchy);
+            return len;
+        }
+        return -1;
+    }
 
     return -1;
 }

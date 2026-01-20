@@ -1,6 +1,7 @@
 {
   "id": "sf2",
   "name": "SF2 Synth",
+  "abbrev": "SF",
   "version": "0.1.3",
   "description": "SoundFont (.sf2) synthesizer using TinySoundFont",
   "author": "TinySoundFont by schellingb (port: charlesvestal)",
