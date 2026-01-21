@@ -14,22 +14,23 @@ fi
 
 echo "=== Installing SF2 Module ==="
 
-# Deploy to Move
+# Deploy to Move - sound_generators subdirectory
 echo "Copying module to Move..."
-scp -r dist/sf2 ableton@move.local:/data/UserData/move-anything/modules/
+ssh ableton@move.local "mkdir -p /data/UserData/move-anything/modules/sound_generators/sf2"
+scp -r dist/sf2/* ableton@move.local:/data/UserData/move-anything/modules/sound_generators/sf2/
 
 # Install chain presets if they exist
 if [ -d "src/chain_patches" ]; then
     echo "Installing chain presets..."
-    scp src/chain_patches/*.json ableton@move.local:/data/UserData/move-anything/modules/chain/patches/
+    scp src/chain_patches/*.json ableton@move.local:/data/UserData/move-anything/patches/
 fi
 
 # Set permissions so Module Store can update later
 echo "Setting permissions..."
-ssh ableton@move.local "chmod -R a+rw /data/UserData/move-anything/modules/sf2"
+ssh ableton@move.local "chmod -R a+rw /data/UserData/move-anything/modules/sound_generators/sf2"
 
 echo ""
 echo "=== Install Complete ==="
-echo "Module installed to: /data/UserData/move-anything/modules/sf2/"
+echo "Module installed to: /data/UserData/move-anything/modules/sound_generators/sf2/"
 echo ""
 echo "Restart Move Anything to load the new module."

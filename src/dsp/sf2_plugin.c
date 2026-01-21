@@ -73,6 +73,7 @@ typedef struct {
     soundfont_entry_t soundfonts[MAX_SOUNDFONTS];
     float render_buffer[MOVE_FRAMES_PER_BLOCK * 2];
     char module_dir[512];
+    char load_error[256];
 } sf2_instance_t;
 
 /* Helper: log via host */
@@ -140,9 +141,14 @@ static int load_soundfont(sf2_instance_t *inst, const char *path) {
         snprintf(msg, sizeof(msg), "Failed to load SF2: %s", path);
         plugin_log(msg);
         strcpy(inst->soundfont_name, "Load failed");
+        snprintf(inst->load_error, sizeof(inst->load_error),
+                 "SF2: no soundfont files found");
         inst->preset_count = 0;
         return -1;
     }
+
+    /* Clear any previous load error on success */
+    inst->load_error[0] = '\0';
 
     tsf_set_output(inst->tsf, TSF_STEREO_INTERLEAVED, MOVE_SAMPLE_RATE, -12.0f);
     inst->preset_count = tsf_get_presetcount(inst->tsf);
@@ -213,6 +219,7 @@ static void* v2_create_instance(const char *module_dir, const char *json_default
 
     strncpy(inst->module_dir, module_dir, sizeof(inst->module_dir) - 1);
     strcpy(inst->soundfont_name, "No SF2 loaded");
+    inst->load_error[0] = '\0';
 
     /* Parse default soundfont path from JSON */
     char default_sf[512] = {0};
@@ -358,7 +365,12 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
     sf2_instance_t *inst = (sf2_instance_t *)instance;
     if (!inst) return -1;
 
-    if (strcmp(key, "soundfont_name") == 0) {
+    if (strcmp(key, "load_error") == 0) {
+        if (inst->load_error[0]) {
+            return snprintf(buf, buf_len, "%s", inst->load_error);
+        }
+        return 0;  /* No error */
+    } else if (strcmp(key, "soundfont_name") == 0) {
         strncpy(buf, inst->soundfont_name, buf_len - 1);
         return strlen(buf);
     } else if (strcmp(key, "soundfont_path") == 0) {
