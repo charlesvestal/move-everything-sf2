@@ -25,6 +25,10 @@ if [ -d "src/chain_patches" ]; then
     scp src/chain_patches/*.json ableton@move.local:/data/UserData/move-anything/patches/
 fi
 
+# Create soundfonts directory for user SF2 files
+echo "Creating soundfonts directory..."
+ssh ableton@move.local "mkdir -p /data/UserData/move-anything/modules/sound_generators/sf2/soundfonts"
+
 # Set permissions so Module Store can update later
 echo "Setting permissions..."
 ssh ableton@move.local "chmod -R a+rw /data/UserData/move-anything/modules/sound_generators/sf2"

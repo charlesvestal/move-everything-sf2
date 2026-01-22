@@ -70,6 +70,9 @@ if [ -f "src/instrument.sf2" ]; then
     cat src/instrument.sf2 > dist/sf2/instrument.sf2
 fi
 
+# Create soundfonts directory for user SF2 files
+mkdir -p dist/sf2/soundfonts
+
 # Create tarball for release
 cd dist
 tar -czvf sf2-module.tar.gz sf2/
