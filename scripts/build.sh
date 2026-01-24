@@ -64,13 +64,7 @@ cat src/ui.js > dist/sf2/ui.js
 cat build/dsp.so > dist/sf2/dsp.so
 chmod +x dist/sf2/dsp.so
 
-# Copy soundfont if it exists
-if [ -f "src/instrument.sf2" ]; then
-    echo "Copying instrument.sf2..."
-    cat src/instrument.sf2 > dist/sf2/instrument.sf2
-fi
-
-# Create soundfonts directory for user SF2 files
+# Create soundfonts directory for user-supplied SF2 files
 mkdir -p dist/sf2/soundfonts
 
 # Create tarball for release
