@@ -2,7 +2,7 @@
   "id": "sf2",
   "name": "SF2 Synth",
   "abbrev": "SF",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "SoundFont (.sf2) synthesizer using TinySoundFont",
   "author": "TinySoundFont by schellingb (port: charlesvestal)",
   "license": "MIT",
@@ -25,6 +25,22 @@
         "min": 0,
         "max_param": "preset_count",
         "default": 0
+      },
+      {
+        "key": "octave_transpose",
+        "name": "Octave",
+        "type": "int",
+        "min": -4,
+        "max": 4,
+        "default": 0
+      },
+      {
+        "key": "gain",
+        "name": "Gain",
+        "type": "float",
+        "min": 0,
+        "max": 2,
+        "default": 1.0
       }
     ]
   },

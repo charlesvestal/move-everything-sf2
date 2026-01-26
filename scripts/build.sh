@@ -47,14 +47,51 @@ echo "Cross prefix: $CROSS_PREFIX"
 mkdir -p build
 mkdir -p dist/sf2
 
+# Compile FluidLite library
+echo "Compiling FluidLite..."
+FLUIDLITE_DIR="src/dsp/third_party/fluidlite"
+FLUIDLITE_SRCS="
+    $FLUIDLITE_DIR/src/fluid_chan.c
+    $FLUIDLITE_DIR/src/fluid_chorus.c
+    $FLUIDLITE_DIR/src/fluid_conv.c
+    $FLUIDLITE_DIR/src/fluid_defsfont.c
+    $FLUIDLITE_DIR/src/fluid_dsp_float.c
+    $FLUIDLITE_DIR/src/fluid_gen.c
+    $FLUIDLITE_DIR/src/fluid_hash.c
+    $FLUIDLITE_DIR/src/fluid_init.c
+    $FLUIDLITE_DIR/src/fluid_list.c
+    $FLUIDLITE_DIR/src/fluid_mod.c
+    $FLUIDLITE_DIR/src/fluid_ramsfont.c
+    $FLUIDLITE_DIR/src/fluid_rev.c
+    $FLUIDLITE_DIR/src/fluid_settings.c
+    $FLUIDLITE_DIR/src/fluid_synth.c
+    $FLUIDLITE_DIR/src/fluid_sys.c
+    $FLUIDLITE_DIR/src/fluid_tuning.c
+    $FLUIDLITE_DIR/src/fluid_voice.c
+"
+
+# Compile FluidLite objects
+mkdir -p build/fluidlite
+for src in $FLUIDLITE_SRCS; do
+    obj="build/fluidlite/$(basename $src .c).o"
+    ${CROSS_PREFIX}gcc -O3 -fPIC \
+        -march=armv8-a -mtune=cortex-a72 \
+        -DNDEBUG \
+        -I$FLUIDLITE_DIR/include \
+        -I$FLUIDLITE_DIR/src \
+        -c "$src" -o "$obj"
+done
+
 # Compile DSP plugin
 echo "Compiling DSP plugin..."
 ${CROSS_PREFIX}gcc -O3 -shared -fPIC \
     -march=armv8-a -mtune=cortex-a72 \
     -DNDEBUG \
     src/dsp/sf2_plugin.c \
+    build/fluidlite/*.o \
     -o build/dsp.so \
     -Isrc/dsp \
+    -I$FLUIDLITE_DIR/include \
     -lm
 
 # Copy files to dist (use cat to avoid ExtFS deallocation issues with Docker)
