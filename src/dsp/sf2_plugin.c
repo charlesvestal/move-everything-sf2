@@ -108,12 +108,38 @@ static int json_get_number(const char *json, const char *key, float *out) {
     return 0;
 }
 
+/* Helper: extract string from JSON */
+static int json_get_string(const char *json, const char *key, char *out, int out_len) {
+    char search[64];
+    snprintf(search, sizeof(search), "\"%s\":\"", key);
+    const char *pos = strstr(json, search);
+    if (!pos) return -1;
+    pos += strlen(search);
+    const char *end = strchr(pos, '"');
+    if (!end) return -1;
+    int len = end - pos;
+    if (len >= out_len) len = out_len - 1;
+    strncpy(out, pos, len);
+    out[len] = '\0';
+    return len;
+}
+
 /* Soundfont Management */
 
 static int soundfont_entry_cmp(const void *a, const void *b) {
     const soundfont_entry_t *sa = (const soundfont_entry_t *)a;
     const soundfont_entry_t *sb = (const soundfont_entry_t *)b;
     return strcasecmp(sa->name, sb->name);
+}
+
+/* Find soundfont index by name, returns -1 if not found */
+static int find_soundfont_by_name(sf2_instance_t *inst, const char *name) {
+    for (int i = 0; i < inst->soundfont_count; i++) {
+        if (strcmp(inst->soundfonts[i].name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 static void scan_soundfonts(sf2_instance_t *inst, const char *module_dir) {
@@ -526,8 +552,20 @@ static void v2_set_param(void *instance, const char *key, const char *val) {
     } else if (strcmp(key, "state") == 0) {
         /* Restore state from JSON */
         float f;
-        if (json_get_number(val, "soundfont_index", &f) == 0) {
-            set_soundfont_index(inst, (int)f);
+        /* Restore soundfont - try by name first, fall back to index */
+        char sf_name[128];
+        int sf_idx = -1;
+        if (json_get_string(val, "soundfont_name", sf_name, sizeof(sf_name)) > 0) {
+            sf_idx = find_soundfont_by_name(inst, sf_name);
+        }
+        if (sf_idx < 0 && json_get_number(val, "soundfont_index", &f) == 0) {
+            int idx = (int)f;
+            if (idx >= 0 && idx < inst->soundfont_count) {
+                sf_idx = idx;
+            }
+        }
+        if (sf_idx >= 0) {
+            set_soundfont_index(inst, sf_idx);
         }
         if (json_get_number(val, "preset", &f) == 0) {
             select_preset(inst, (int)f);
@@ -606,9 +644,14 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
     }
     /* State serialization for save/load */
     else if (strcmp(key, "state") == 0) {
+        /* Save soundfont by name for robustness (index can change if files added/removed) */
+        const char *sf_name = "";
+        if (inst->soundfont_count > 0 && inst->soundfont_index < inst->soundfont_count) {
+            sf_name = inst->soundfonts[inst->soundfont_index].name;
+        }
         return snprintf(buf, buf_len,
-            "{\"soundfont_index\":%d,\"preset\":%d,\"octave_transpose\":%d,\"gain\":%.2f}",
-            inst->soundfont_index, inst->current_preset, inst->octave_transpose, inst->gain);
+            "{\"soundfont_name\":\"%s\",\"soundfont_index\":%d,\"preset\":%d,\"octave_transpose\":%d,\"gain\":%.2f}",
+            sf_name, inst->soundfont_index, inst->current_preset, inst->octave_transpose, inst->gain);
     }
     /* UI hierarchy for shadow parameter editor */
     else if (strcmp(key, "ui_hierarchy") == 0) {
