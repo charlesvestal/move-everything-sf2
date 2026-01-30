@@ -389,6 +389,11 @@ static void* v2_create_instance(const char *module_dir, const char *json_default
     fluid_synth_set_interp_method(inst->synth, -1, FLUID_INTERP_4THORDER);
     plugin_log("Set interpolation to FLUID_INTERP_4THORDER (4)");
 
+    /* Initialize mod wheel to 0 on all channels to prevent default vibrato */
+    for (int ch = 0; ch < 16; ch++) {
+        fluid_synth_cc(inst->synth, ch, 1, 0);  /* CC 1 = mod wheel */
+    }
+
     /* Parse default soundfont path from JSON */
     char default_sf[512] = {0};
     if (json_defaults) {
