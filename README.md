@@ -40,7 +40,7 @@ Polyphonic SoundFont synthesizer for Move Anything using [TinySoundFont](https:/
 1. Download a .sf2 file (see "SoundFont Sources" below)
 2. Copy to Move:
    ```bash
-   scp YourSound.sf2 ableton@move.local:/data/UserData/move-anything/modules/sf2/soundfonts/
+   scp YourSound.sf2 ableton@move.local:/data/UserData/move-anything/modules/sound_generators/sf2/soundfonts/
    ```
 3. Restart the SF2 module or use Shift + Left/Right to switch soundfonts
 
@@ -87,7 +87,7 @@ Free SoundFonts are available from:
 - FluidR3_GM (~150MB) works well; larger ones may have issues
 
 **Can't find soundfont:**
-- Ensure file is in `modules/sf2/soundfonts/` (not the module root)
+- Ensure file is in `modules/sound_generators/sf2/soundfonts/` (not the module root)
 - File must have `.sf2` extension (case sensitive)
 
 ## Technical Details
