@@ -2,7 +2,7 @@
   "id": "sf2",
   "name": "SF2 Player",
   "abbrev": "SF",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "SoundFont (.sf2) synthesizer using FluidLite",
   "author": "FluidLite by Robin Lobel (port: charlesvestal)",
   "license": "LGPL-2.1",

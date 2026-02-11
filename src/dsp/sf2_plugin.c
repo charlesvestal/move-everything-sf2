@@ -519,6 +519,8 @@ static void v2_set_param(void *instance, const char *key, const char *val) {
     if (!inst) return;
 
     if (strcmp(key, "soundfont_path") == 0) {
+        /* Skip if already loaded */
+        if (strcmp(inst->soundfont_path, val) == 0) return;
         load_soundfont(inst, val);
         if (inst->soundfont_count > 0) {
             const char *name = strrchr(val, '/');
@@ -532,13 +534,17 @@ static void v2_set_param(void *instance, const char *key, const char *val) {
             }
         }
     } else if (strcmp(key, "soundfont_index") == 0) {
-        set_soundfont_index(inst, atoi(val));
+        int idx = atoi(val);
+        if (idx == inst->soundfont_index) return;
+        set_soundfont_index(inst, idx);
     } else if (strcmp(key, "next_soundfont") == 0) {
         set_soundfont_index(inst, inst->soundfont_index + 1);
     } else if (strcmp(key, "prev_soundfont") == 0) {
         set_soundfont_index(inst, inst->soundfont_index - 1);
     } else if (strcmp(key, "preset") == 0) {
-        select_preset(inst, atoi(val));
+        int idx = atoi(val);
+        if (idx == inst->current_preset) return;
+        select_preset(inst, idx);
     } else if (strcmp(key, "octave_transpose") == 0) {
         inst->octave_transpose = atoi(val);
         if (inst->octave_transpose < -4) inst->octave_transpose = -4;
