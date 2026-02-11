@@ -53,6 +53,11 @@
       }
     ]
   },
+  "assets": {
+    "path": "soundfonts",
+    "label": "Soundfonts",
+    "extensions": [".sf2"]
+  },
   "defaults": {
     "soundfont_path": "/data/UserData/move-anything/modules/sound_generators/sf2/instrument.sf2",
     "preset": 0
