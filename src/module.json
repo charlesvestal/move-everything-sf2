@@ -60,7 +60,8 @@
     "label": "Soundfonts",
     "extensions": [
       ".sf2"
-    ]
+    ],
+    "description": "Upload .sf2 soundfont files. A default General MIDI soundfont is included."
   },
   "defaults": {
     "soundfont_path": "/data/UserData/move-anything/modules/sound_generators/sf2/instrument.sf2",
