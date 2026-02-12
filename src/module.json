@@ -21,7 +21,32 @@
       "levels": {
         "root": {
           "name": "SF2",
-          "params": ["preset", "octave_transpose", "gain"],
+          "params": [
+            {
+              "key": "preset",
+              "label": "Preset",
+              "type": "int",
+              "min": 0,
+              "max_param": "preset_count",
+              "default": 0
+            },
+            {
+              "key": "octave_transpose",
+              "label": "Octave",
+              "type": "int",
+              "min": -4,
+              "max": 4,
+              "default": 0
+            },
+            {
+              "key": "gain",
+              "label": "Gain",
+              "type": "float",
+              "min": 0,
+              "max": 2,
+              "default": 1.0
+            }
+          ],
           "knobs": ["octave_transpose", "gain"]
         }
       }
