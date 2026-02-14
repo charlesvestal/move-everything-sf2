@@ -2,7 +2,7 @@
   "id": "sf2",
   "name": "SF2 Player",
   "abbrev": "SF",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "SoundFont (.sf2) synthesizer using FluidLite",
   "author": "FluidLite by Robin Lobel (port: charlesvestal)",
   "license": "LGPL-2.1",
@@ -61,7 +61,10 @@
     "extensions": [
       ".sf2"
     ],
-    "description": "Upload .sf2 soundfont files. A default General MIDI soundfont is included."
+    "description": "Upload .sf2 soundfont files. A default General MIDI soundfont is included.",
+    "hint": "Find soundfonts at",
+    "hint_url": "https://musical-artifacts.com/artifacts?formats=sf2",
+    "hint_url_label": "Musical Artifacts"
   },
   "defaults": {
     "soundfont_path": "/data/UserData/move-anything/modules/sound_generators/sf2/instrument.sf2",
