@@ -81,6 +81,10 @@ typedef struct {
     int soundfont_count;
     soundfont_entry_t soundfonts[MAX_SOUNDFONTS];
     preset_entry_t presets[MAX_PRESETS];
+    int reverb_on;
+    int chorus_on;
+    float reverb_level;
+    float chorus_level;
     float left_buf[MOVE_FRAMES_PER_BLOCK];
     float right_buf[MOVE_FRAMES_PER_BLOCK];
     char module_dir[512];
@@ -367,6 +371,10 @@ static void* v2_create_instance(const char *module_dir, const char *json_default
     fluid_settings_setnum(inst->settings, "synth.gain", 1.0);
     fluid_settings_setint(inst->settings, "synth.polyphony", 64);
     inst->gain = 1.0f;
+    inst->reverb_on = 1;
+    inst->chorus_on = 1;
+    inst->reverb_level = FLUID_REVERB_DEFAULT_LEVEL;
+    inst->chorus_level = FLUID_CHORUS_DEFAULT_LEVEL;
 
     inst->synth = new_fluid_synth(inst->settings);
     if (!inst->synth) {
@@ -561,6 +569,39 @@ static void v2_set_param(void *instance, const char *key, const char *val) {
         if (inst->synth) {
             fluid_synth_set_gain(inst->synth, inst->gain);
         }
+    } else if (strcmp(key, "reverb_on") == 0) {
+        inst->reverb_on = atoi(val) ? 1 : 0;
+        if (inst->synth) {
+            fluid_synth_set_reverb_on(inst->synth, inst->reverb_on);
+        }
+    } else if (strcmp(key, "chorus_on") == 0) {
+        inst->chorus_on = atoi(val) ? 1 : 0;
+        if (inst->synth) {
+            fluid_synth_set_chorus_on(inst->synth, inst->chorus_on);
+        }
+    } else if (strcmp(key, "reverb_level") == 0) {
+        inst->reverb_level = atof(val);
+        if (inst->reverb_level < 0.0f) inst->reverb_level = 0.0f;
+        if (inst->reverb_level > 1.0f) inst->reverb_level = 1.0f;
+        if (inst->synth) {
+            fluid_synth_set_reverb(inst->synth,
+                fluid_synth_get_reverb_roomsize(inst->synth),
+                fluid_synth_get_reverb_damp(inst->synth),
+                fluid_synth_get_reverb_width(inst->synth),
+                inst->reverb_level);
+        }
+    } else if (strcmp(key, "chorus_level") == 0) {
+        inst->chorus_level = atof(val);
+        if (inst->chorus_level < 0.0f) inst->chorus_level = 0.0f;
+        if (inst->chorus_level > 10.0f) inst->chorus_level = 10.0f;
+        if (inst->synth) {
+            fluid_synth_set_chorus(inst->synth,
+                fluid_synth_get_chorus_nr(inst->synth),
+                inst->chorus_level,
+                fluid_synth_get_chorus_speed_Hz(inst->synth),
+                fluid_synth_get_chorus_depth_ms(inst->synth),
+                fluid_synth_get_chorus_type(inst->synth));
+        }
     } else if (strcmp(key, "all_notes_off") == 0 || strcmp(key, "panic") == 0) {
         if (inst->synth) {
             fluid_synth_all_notes_off(inst->synth, -1);
@@ -599,6 +640,43 @@ static void v2_set_param(void *instance, const char *key, const char *val) {
                 fluid_synth_set_gain(inst->synth, inst->gain);
             }
         }
+        if (json_get_number(val, "reverb_on", &f) == 0) {
+            inst->reverb_on = (int)f ? 1 : 0;
+            if (inst->synth) {
+                fluid_synth_set_reverb_on(inst->synth, inst->reverb_on);
+            }
+        }
+        if (json_get_number(val, "chorus_on", &f) == 0) {
+            inst->chorus_on = (int)f ? 1 : 0;
+            if (inst->synth) {
+                fluid_synth_set_chorus_on(inst->synth, inst->chorus_on);
+            }
+        }
+        if (json_get_number(val, "reverb_level", &f) == 0) {
+            inst->reverb_level = f;
+            if (inst->reverb_level < 0.0f) inst->reverb_level = 0.0f;
+            if (inst->reverb_level > 1.0f) inst->reverb_level = 1.0f;
+            if (inst->synth) {
+                fluid_synth_set_reverb(inst->synth,
+                    fluid_synth_get_reverb_roomsize(inst->synth),
+                    fluid_synth_get_reverb_damp(inst->synth),
+                    fluid_synth_get_reverb_width(inst->synth),
+                    inst->reverb_level);
+            }
+        }
+        if (json_get_number(val, "chorus_level", &f) == 0) {
+            inst->chorus_level = f;
+            if (inst->chorus_level < 0.0f) inst->chorus_level = 0.0f;
+            if (inst->chorus_level > 10.0f) inst->chorus_level = 10.0f;
+            if (inst->synth) {
+                fluid_synth_set_chorus(inst->synth,
+                    fluid_synth_get_chorus_nr(inst->synth),
+                    inst->chorus_level,
+                    fluid_synth_get_chorus_speed_Hz(inst->synth),
+                    fluid_synth_get_chorus_depth_ms(inst->synth),
+                    fluid_synth_get_chorus_type(inst->synth));
+            }
+        }
     }
 }
 
@@ -632,6 +710,14 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
         return snprintf(buf, buf_len, "%d", inst->octave_transpose);
     } else if (strcmp(key, "gain") == 0) {
         return snprintf(buf, buf_len, "%.2f", inst->gain);
+    } else if (strcmp(key, "reverb_on") == 0) {
+        return snprintf(buf, buf_len, "%d", inst->reverb_on);
+    } else if (strcmp(key, "chorus_on") == 0) {
+        return snprintf(buf, buf_len, "%d", inst->chorus_on);
+    } else if (strcmp(key, "reverb_level") == 0) {
+        return snprintf(buf, buf_len, "%.2f", inst->reverb_level);
+    } else if (strcmp(key, "chorus_level") == 0) {
+        return snprintf(buf, buf_len, "%.2f", inst->chorus_level);
     }
     /* Unified bank/preset parameters for Chain compatibility */
     else if (strcmp(key, "bank_name") == 0) {
@@ -666,8 +752,10 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
             sf_name = inst->soundfonts[inst->soundfont_index].name;
         }
         return snprintf(buf, buf_len,
-            "{\"soundfont_name\":\"%s\",\"soundfont_index\":%d,\"preset\":%d,\"octave_transpose\":%d,\"gain\":%.2f}",
-            sf_name, inst->soundfont_index, inst->current_preset, inst->octave_transpose, inst->gain);
+            "{\"soundfont_name\":\"%s\",\"soundfont_index\":%d,\"preset\":%d,\"octave_transpose\":%d,\"gain\":%.2f,"
+            "\"reverb_on\":%d,\"chorus_on\":%d,\"reverb_level\":%.2f,\"chorus_level\":%.2f}",
+            sf_name, inst->soundfont_index, inst->current_preset, inst->octave_transpose, inst->gain,
+            inst->reverb_on, inst->chorus_on, inst->reverb_level, inst->chorus_level);
     }
     /* UI hierarchy for shadow parameter editor */
     else if (strcmp(key, "ui_hierarchy") == 0) {
@@ -684,6 +772,10 @@ static int v2_get_param(void *instance, const char *key, char *buf, int buf_len)
                     "\"params\":["
                         "{\"key\":\"octave_transpose\",\"label\":\"Octave\"},"
                         "{\"key\":\"gain\",\"label\":\"Gain\"},"
+                        "{\"key\":\"reverb_on\",\"label\":\"Built-in Reverb\",\"type\":\"toggle\"},"
+                        "{\"key\":\"reverb_level\",\"label\":\"Reverb Level\",\"type\":\"float\",\"min\":0.0,\"max\":1.0,\"default\":0.9,\"step\":0.01},"
+                        "{\"key\":\"chorus_on\",\"label\":\"Built-in Chorus\",\"type\":\"toggle\"},"
+                        "{\"key\":\"chorus_level\",\"label\":\"Chorus Level\",\"type\":\"float\",\"min\":0.0,\"max\":10.0,\"default\":2.0,\"step\":0.1},"
                         "{\"level\":\"soundfont\",\"label\":\"Choose Soundfont\"}"
                     "]"
                 "},"
