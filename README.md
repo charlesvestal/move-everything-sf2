@@ -15,7 +15,7 @@ Polyphonic SoundFont synthesizer for Move Everything using [TinySoundFont](https
 
 ## Prerequisites
 
-- [Move Everything](https://github.com/charlesvestal/move-anything) installed on your Ableton Move
+- [Move Everything](https://github.com/charlesvestal/move-everything) installed on your Ableton Move
 - SSH access enabled: http://move.local/development/ssh
 
 ## Installation
